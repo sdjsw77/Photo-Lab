@@ -1,0 +1,224 @@
+/* 1. 변수 설정 및 초기화 */
+:root {
+    --bg-color: #0f172a;        /* 전체 배경색 (다크 네이비) */
+    --sidebar-bg: #1e293b;     /* 사이드바 배경색 */
+    --card-bg: #1e293b80;      /* 카드 배경색 (약간 투명) */
+    --text-primary: #f8fafc;   /* 메인 글자색 */
+    --text-secondary: #94a3b8; /* 서브 글자색 */
+    --accent-blue: #38bdf8;    /* 포인트 블루 */
+    --accent-purple: #818cf8;  /* 포인트 퍼플 */
+    --border-color: #334155;   /* 카드 테두리 */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+}
+
+/* 2. 사이드바 (PC 기준) */
+nav.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    height: 100vh;
+}
+
+.logo-area h2 {
+    font-size: 1.25rem;
+    color: var(--accent-blue);
+    margin-bottom: 0.2rem;
+}
+
+.logo-area p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.search-bar {
+    background: #0f172a;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.6rem;
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.menu-group {
+    margin-bottom: 1.5rem;
+}
+
+.menu-group h3 {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.menu-item {
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.menu-item:hover, .menu-item.active {
+    background: #334155;
+    color: var(--text-primary);
+}
+
+/* 3. 메인 콘텐츠 영역 */
+main.content {
+    margin-left: 260px; /* 사이드바 너비만큼 띄움 */
+    flex: 1;
+    padding: 3rem;
+    max-width: 1200px;
+}
+
+.hero-section {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.badge {
+    background: #1e293b;
+    color: var(--accent-blue);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border: 1px solid var(--accent-blue);
+}
+
+.main-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 1.5rem 0;
+    background: linear-gradient(to right, #fff, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* 4. 그리드 레이아웃 (카드 영역) */
+.section-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* PC는 2열 */
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.category-title {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-blue);
+}
+
+.card h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.card p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.preset-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 프리셋은 3열 */
+    gap: 1rem;
+}
+
+/* 5. 하단 정보 */
+footer {
+    margin-top: 5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-align: left;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+/* ★ 6. 모바일 최적화 (반응형 코드) ★ */
+@media (max-width: 1024px) {
+    .preset-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column; /* 메뉴와 콘텐츠를 세로로 */
+    }
+
+    nav.sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 1rem;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .menu-group {
+        display: none; /* 모바일에서 메뉴가 너무 길면 숨기거나 햄버거로 대체 가능 */
+    }
+
+    main.content {
+        margin-left: 0; /* 사이드바 마진 제거 */
+        padding: 1.5rem;
+    }
+
+    .main-title {
+        font-size: 2rem; /* 제목 크기 축소 */
+    }
+
+    .section-grid, .preset-grid {
+        grid-template-columns: 1fr; /* 무조건 한 줄로 나열 */
+        gap: 1rem;
+    }
+
+    .card {
+        padding: 1.2rem;
+    }
+}
