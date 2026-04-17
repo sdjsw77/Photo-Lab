@@ -1,0 +1,1862 @@
+<html lang="ko">
+<head>
+    <link rel="manifest" href="./manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>사진 보정 & 촬영 마스터 가이드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Mobile Touch Improvements */
+        * {
+            -webkit-tap-highlight-color: transparent; /* Remove default tap highlight */
+        }
+        
+        /* Active states for better touch feedback */
+        button:active, .glass-card.cursor-pointer:active {
+            transform: scale(0.98);
+            transition: transform 0.1s;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        /* Safe Area Utilities */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .slider-track {
+            position: relative;
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .slider-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+        .slider-thumb {
+            position: absolute;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glass & Gradient Utilities */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .text-gradient-blue {
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-cyan {
+            background: linear-gradient(to right, #22d3ee, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-pink {
+            background: linear-gradient(to right, #f472b6, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-gold {
+            background: linear-gradient(to right, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-orange {
+            background: linear-gradient(to right, #fb923c, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-teal {
+            background: linear-gradient(to right, #2dd4bf, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-indigo {
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-silver {
+            background: linear-gradient(to right, #e2e8f0, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Custom Range Slider for Practice Page - Mobile Optimized */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            height: 24px; /* Increased touch area */
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px; /* Larger thumb for mobile */
+            width: 20px;
+            border-radius: 50%;
+            background: #60a5fa;
+            cursor: pointer;
+            margin-top: -8px; /* Centering adjusted for new height */
+            box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            border: 2px solid #fff; /* Easier to see */
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #475569;
+            border-radius: 2px;
+        }
+        /* Color input range tracks */
+        #p-exposure::-webkit-slider-thumb { background: #60a5fa; }
+        #p-contrast::-webkit-slider-thumb { background: #a78bfa; }
+        #p-highlights::-webkit-slider-thumb { background: #f472b6; }
+        #p-shadows::-webkit-slider-thumb { background: #818cf8; }
+        #p-texture::-webkit-slider-thumb { background: #34d399; }
+        #p-clarity::-webkit-slider-thumb { background: #2dd4bf; }
+        #p-dehaze::-webkit-slider-thumb { background: #fbbf24; }
+        #p-vibrance::-webkit-slider-thumb { background: #f87171; }
+        #p-saturation::-webkit-slider-thumb { background: #f472b6; }
+        
+        /* Remove number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+            font-size: 16px; /* Prevent iOS zoom */
+        }
+        /* Prevent iOS zoom on inputs */
+        input[type="text"] {
+            font-size: 16px;
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; } /* Thinner on mobile context */
+        .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+
+        /* Toast Styles */
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            bottom: calc(30px + env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            width: max-content;
+            max-width: 90%;
+        }
+        .toast {
+            background: rgba(220, 38, 38, 0.95); /* Red warning */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="text-slate-200 h-screen flex overflow-hidden">
+
+    <!-- Mobile Header -->
+    <header class="md:hidden fixed top-0 w-full bg-slate-900/95 backdrop-blur border-b border-slate-800 z-50 flex justify-between items-center p-4">
+        <h1 class="text-lg font-bold text-gradient-blue">Photo Lab</h1>
+        <button id="menuBtn" class="text-slate-300 hover:text-white p-2 focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+        </button>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="transform -translate-x-full md:translate-x-0 transition-transform duration-300 fixed md:relative z-40 w-64 h-full bg-slate-900 border-r border-slate-800 flex flex-col pt-16 md:pt-0 shadow-2xl md:shadow-none pb-safe">
+        <div class="p-6 border-b border-slate-800 hidden md:block">
+            <h1 class="text-2xl font-bold text-gradient-blue tracking-tight">Photo Lab</h1>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Professional Editing & Shooting</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="px-4 pt-4 pb-2">
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="searchInput" 
+                    class="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-lg leading-5 bg-slate-800 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition duration-150 ease-in-out" 
+                    placeholder="검색 (예: 필름, 흑백, 풍경)">
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+            <!-- Home -->
+            <div>
+                <button onclick="router('home')" class="nav-item w-full text-left px-4 py-3 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-blue-400 font-medium bg-slate-800/50 border border-slate-700/50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    홈 / 개요
+                </button>
+            </div>
+
+            <!-- 1. Concepts -->
+            <div>
+                <h3 class="px-4 text-base font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span class="text-amber-500">📘</span> 개념
+                </h3>
+                <ul class="space-y-1">
+                     <li>
+                        <button onclick="router('concepts')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            JPG vs RAW & 용어
+                        </button>
+                    </li>
+                     <li>
+                        <button onclick="router('web_master')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            가이드 메뉴 (Reference)
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 2. Shooting & Composition -->
+            <div>
+                <h3 class="px-4 text-base font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span class="text-orange-500">📷</span> 촬영
+                </h3>
+                <ul class="space-y-1">
+                     <li>
+                        <button onclick="router('photography')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            실전 촬영 가이드
+                        </button>
+                    </li>
+                    <!-- Composition Sub-Items -->
+                    <li class="pt-3 pb-1 px-4">
+                        <span class="text-xs font-bold text-teal-500 uppercase tracking-wider flex items-center gap-1">
+                            📐 구도 (Composition)
+                        </span>
+                    </li>
+                     <li>
+                        <button onclick="router('golden_triangle')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            골든 트라이앵글 심화
+                        </button>
+                    </li>
+                     <li>
+                        <button onclick="router('frame_composition')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            액자 구도 심화
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 3. Editing Basics -->
+            <div>
+                <h3 class="px-4 text-base font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span class="text-blue-500">🎨</span> 보정 기초
+                </h3>
+                <ul class="space-y-1">
+                     <li>
+                        <button onclick="router('workflow')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            핵심 보정 흐름
+                        </button>
+                    </li>
+                     <li>
+                        <button onclick="router('practice')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            실시간 보정 연습
+                        </button>
+                    </li>
+                     <li>
+                        <button onclick="router('instagram_tips')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            📱 인스타 최적화
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 4. Recommended Presets (New Directory) -->
+            <div>
+                <h3 class="px-4 text-base font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <span class="text-pink-500">✨</span> 보정 추천값
+                </h3>
+                <ul class="space-y-1">
+                     <li>
+                        <button onclick="router('landscape')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            🏞️ 풍경 사진 레시피
+                        </button>
+                    </li>
+                     <li>
+                        <button onclick="router('portrait')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            👤 인물 사진 레시피
+                        </button>
+                    </li>
+                     <li>
+                        <button onclick="router('film_recipe')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            🎞️ 필름 감성 레시피
+                        </button>
+                    </li>
+                     <li>
+                        <button onclick="router('bw_master')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            ⚫⚪ 흑백 사진 마스터
+                        </button>
+                    </li>
+                     <li>
+                        <button onclick="router('cinematic')" class="nav-item w-full text-left px-4 py-3 md:py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-3 text-slate-400 text-sm">
+                            🎬 시네마틱 컬러
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="p-4 border-t border-slate-800 text-xs text-slate-600 text-center font-medium pb-safe">
+            <p>© Photo Editing Interactive Guide</p>
+            <p class="mt-1 text-slate-500">Created by JSW</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 overflow-y-auto relative pt-16 md:pt-0 bg-slate-900 scroll-smooth pb-safe">
+        <!-- Content injected via JS -->
+    </main>
+
+    <!-- Overlay for mobile sidebar -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 z-30 hidden md:hidden backdrop-blur-sm"></div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <script>
+        // --- Data ---
+        const contentData = {
+            home: `
+                <div class="max-w-5xl mx-auto p-5 md:p-12 fade-in pb-20 md:pb-10">
+                    <div class="text-center mb-16 mt-4">
+                        <span class="inline-block py-1 px-3 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold tracking-wider mb-4 border border-blue-500/20">ALL-IN-ONE</span>
+                        <h2 class="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tight">사진 촬영 & 보정 <span class="text-gradient-blue">마스터</span></h2>
+                        <p class="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">M모드 촬영법부터 RAW 파일 보정까지.<br>스마트폰으로 언제 어디서나 편하게 학습하세요.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        
+                        <!-- 1. Concepts -->
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                📘 개념 (Concepts)
+                            </h3>
+                            <div class="glass-card p-6 rounded-xl hover:border-amber-500/50 transition cursor-pointer group shadow-lg" onclick="router('concepts')">
+                                <h4 class="text-lg font-bold text-white mb-2 group-hover:text-amber-400">JPG vs RAW & 용어</h4>
+                                <p class="text-sm text-slate-400">히스토그램 보는 법과 필수 용어 정리. 왜 RAW로 촬영해야 할까요?</p>
+                            </div>
+                            <div class="glass-card p-6 rounded-xl hover:border-indigo-500/50 transition cursor-pointer group shadow-lg" onclick="router('web_master')">
+                                <h4 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-400">가이드 메뉴 (Reference)</h4>
+                                <p class="text-sm text-slate-400">전문가들의 사진 강좌 핵심 요약 (노출, 조명, 렌즈, 파지법)</p>
+                            </div>
+                        </div>
+
+                        <!-- 2. Shooting -->
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-orange-400 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                📷 촬영 (Shooting)
+                            </h3>
+                            <div class="glass-card p-6 rounded-xl hover:border-orange-500/50 transition cursor-pointer group shadow-lg" onclick="router('photography')">
+                                <h4 class="text-lg font-bold text-white mb-2 group-hover:text-orange-400">실전 촬영 가이드</h4>
+                                <p class="text-sm text-slate-400">M모드 설정, 야경/인물/풍경별 추천 값 및 꿀팁 요약</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="glass-card p-4 rounded-xl hover:border-yellow-500/50 transition cursor-pointer group text-center" onclick="router('golden_triangle')">
+                                    <span class="text-2xl mb-2 block">📐</span>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-yellow-400">골든 트라이앵글</h4>
+                                </div>
+                                <div class="glass-card p-4 rounded-xl hover:border-teal-500/50 transition cursor-pointer group text-center" onclick="router('frame_composition')">
+                                    <span class="text-2xl mb-2 block">🖼️</span>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-teal-400">액자 구도</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Editing Basics -->
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-blue-400 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                🎨 보정 기초 (Editing Basics)
+                            </h3>
+                            <div class="glass-card p-6 rounded-xl hover:border-blue-500/50 transition cursor-pointer group shadow-lg" onclick="router('workflow')">
+                                <h4 class="text-lg font-bold text-white mb-2 group-hover:text-blue-400">핵심 보정 흐름</h4>
+                                <p class="text-sm text-slate-400">카메라 로우 패널 이해부터 최종 점검까지, 6단계 필수 코스.</p>
+                            </div>
+                            <div class="glass-card p-6 rounded-xl hover:border-purple-500/50 transition cursor-pointer group shadow-lg" onclick="router('practice')">
+                                <h4 class="text-lg font-bold text-white mb-2 group-hover:text-purple-400">실시간 보정 연습</h4>
+                                <p class="text-sm text-slate-400">9가지 슬라이더를 직접 움직여보며 변화를 체감하세요.</p>
+                            </div>
+                            <div class="glass-card p-6 rounded-xl hover:border-pink-500/50 transition cursor-pointer group shadow-lg" onclick="router('instagram_tips')">
+                                <h4 class="text-lg font-bold text-white mb-2 group-hover:text-pink-400">📱 인스타 최적화</h4>
+                                <p class="text-sm text-slate-400">비율, 용량, 해상도 등 인스타 업로드 필수 설정.</p>
+                            </div>
+                        </div>
+
+                        <!-- 4. Recommended Presets -->
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-pink-400 flex items-center gap-2 border-b border-slate-700 pb-2">
+                                ✨ 보정 추천값 (Presets)
+                            </h3>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div class="glass-card p-4 rounded-xl hover:border-green-500/50 transition cursor-pointer group" onclick="router('landscape')">
+                                    <span class="text-2xl mb-2 block">🏞️</span>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-green-400">풍경 사진</h4>
+                                </div>
+                                <div class="glass-card p-4 rounded-xl hover:border-pink-500/50 transition cursor-pointer group" onclick="router('portrait')">
+                                    <span class="text-2xl mb-2 block">👤</span>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-pink-400">인물 사진</h4>
+                                </div>
+                                <div class="glass-card p-4 rounded-xl hover:border-red-500/50 transition cursor-pointer group" onclick="router('film_recipe')">
+                                    <span class="text-2xl mb-2 block">🎞️</span>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-red-400">필름 감성</h4>
+                                </div>
+                                <div class="glass-card p-4 rounded-xl hover:border-slate-400/50 transition cursor-pointer group" onclick="router('bw_master')">
+                                    <span class="text-2xl mb-2 block">⚫⚪</span>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-slate-300">흑백 마스터</h4>
+                                </div>
+                                <div class="glass-card p-4 rounded-xl hover:border-teal-500/50 transition cursor-pointer group" onclick="router('cinematic')">
+                                    <span class="text-2xl mb-2 block">🎬</span>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-teal-400">시네마틱</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            `,
+            film_recipe: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-pink">🎞️ 필름 감성 레시피</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">Matte Look</span>
+                    </h2>
+                    
+                    <div class="glass-card p-6 rounded-xl border border-pink-500/20 mb-8">
+                        <p class="text-slate-300 mb-6 leading-relaxed">
+                            디지털 사진에서 아날로그 필름의 느낌을 내는 상세 레시피입니다.<br>
+                            <span class="text-sm text-slate-500">* 기본 탭은 마지막에 조절하는 것이 좋습니다.</span>
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                            <!-- Column 1 -->
+                            <div class="space-y-4">
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-pink-400 block mb-2">1. 톤 곡선 (Tone Curve)</strong>
+                                    <ul class="text-slate-400 space-y-1 list-disc pl-4">
+                                        <li>RGB채널 5포인트 설정:<br>
+                                            (0, 14.5%), (23.5, 18.0%), (43.5, 32.5%), (71.0, 69.0%), (100, 100%)
+                                        </li>
+                                        <li>밝은 영역: +10 / 밝음: 0</li>
+                                        <li>어두움: +10 / 어두운 영역: +40</li>
+                                        <li><span class="text-xs text-slate-500">R, G, B 개별 채널은 건드리지 않음</span></li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-orange-400 block mb-2">2. HSL (색상 혼합)</strong>
+                                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                                        <div><span class="text-red-400">● 빨강:</span> 색조-10, 채도0, 광도0</div>
+                                        <div><span class="text-orange-400">● 주황:</span> 색조-20 (붉으면↑)</div>
+                                        <div><span class="text-yellow-400">● 노랑:</span> 색조-10</div>
+                                        <div><span class="text-green-400">● 초록:</span> 색조+20, 채도-20, 광도-20</div>
+                                        <div><span class="text-blue-400">● 파랑/바다:</span> 색조-10, 채도-10</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-purple-400 block mb-2">3. 명암별 색보정 (Color Grading)</strong>
+                                    <ul class="text-slate-400 space-y-1">
+                                        <li><strong class="text-slate-200">Highlights:</strong> 색조 55, 채도 15</li>
+                                        <li><strong class="text-slate-200">Shadows:</strong> 색조 160, 채도 15</li>
+                                        <li><strong class="text-slate-200">균형:</strong> +20 (취향껏)</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Column 2 -->
+                            <div class="space-y-4">
+                                <div class="bg-slate-800 p-4 rounded-lg border-l-2 border-slate-600">
+                                    <strong class="text-slate-200 block mb-2">4. 기본 패널 (Basic)</strong>
+                                    <ul class="text-slate-400 space-y-1 text-xs">
+                                        <li>노출: 0 ~ +0.5</li>
+                                        <li>밝은 영역: -20 (명부 밋밋하면 ↑)</li>
+                                        <li>어두운 영역: +40 (암부 죽으면 ↑)</li>
+                                        <li>흰색 계열: +30</li>
+                                        <li>검정 계열: +20 (암부 밝으면 ↓)</li>
+                                        <li>대비: -20 / 부분대비: +10</li>
+                                        <li>디헤이즈: -2 / 생동감: -10</li>
+                                        <li>색온도: 취향껏 (너무 내리면 필름맛↓)</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-teal-400 block mb-2">5. 효과 및 렌즈/보정</strong>
+                                    <ul class="text-slate-400 space-y-1 list-disc pl-4">
+                                        <li><strong>그레인:</strong> 양40, 크기40, 거칠음70</li>
+                                        <li><strong>비네팅:</strong> -15 (중앙점 40)</li>
+                                        <li><strong>카메라 보정:</strong>
+                                            <div class="text-xs mt-1 pl-2 border-l border-slate-600">
+                                                프로필: Adobe Standard<br>
+                                                어두운영역 색조 -20<br>
+                                                빨강 기본: 색조 +20<br>
+                                                초록 기본: 색조 +40<br>
+                                                파랑 기본: 색조 -30
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            bw_master: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-silver">⚫⚪ 흑백 사진 마스터</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">B&W Deep Dive</span>
+                    </h2>
+
+                    <div class="glass-card p-6 rounded-xl border border-slate-500/20">
+                        <p class="text-slate-300 mb-4 leading-relaxed">
+                            "흑백은 단순히 채도를 0으로 만드는 것이 아닙니다."<br>
+                            색상 정보를 밝기 정보로 변환하는 과정에서의 디테일을 챙겨보세요.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-slate-800 p-5 rounded-xl border-l-4 border-slate-400">
+                                <strong class="text-white block mb-2 text-lg">💡 핵심 원리: 색온도 활용</strong>
+                                <p class="text-sm text-slate-400 mb-3">
+                                    흑백 상태에서도 <strong>색온도(WB)</strong>를 조절하면 톤이 변합니다.<br>
+                                    <span class="text-blue-300">파란 곳은 더 밝게, 누런 곳은 어둡게</span> 보정됩니다.
+                                </p>
+                                <div class="bg-black/30 p-3 rounded text-xs text-slate-300">
+                                    팁: 흑백 변환 > 흑백 혼합 조절 > 화이트밸런스 조절 순서로 진행해보세요. 대비와 분위기가 확 달라집니다.
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-slate-200 block mb-1">📉 커브 오버레이</strong>
+                                    <p class="text-xs text-slate-400">
+                                        커브는 흑백 위에 그대로 적용됩니다. 파랑 채널의 암부 커브를 조절해 세피아 톤을 만들 수도 있지만, 흑백 본연의 맛을 위해선 RGB 커브로 대비를 잡으세요.
+                                    </p>
+                                </div>
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-slate-200 block mb-1">🌫️ 계조 보호 (안개/비)</strong>
+                                    <p class="text-xs text-slate-400">
+                                        대비가 강한 씬이 아니라면 부드러운 커브를 사용하세요. 안개나 비가 오는 날은 <strong>부분대비와 디헤이즈를 내려</strong> 부드러운 질감을 강조하면 좋습니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            cinematic: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-teal">🎬 시네마틱 컬러 그레이딩</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">Teal & Orange</span>
+                    </h2>
+
+                    <div class="glass-card p-6 rounded-xl border border-teal-500/20">
+                        <p class="text-slate-300 mb-6 leading-relaxed">
+                            영화 같은 색감의 비밀은 <strong>보색 대비</strong>입니다.<br>
+                            어두운 곳(Shadow)엔 푸른색(Teal)을, 밝은 곳(Highlight)엔 주황색(Orange)을 넣어보세요.
+                        </p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-800 p-4 rounded-lg text-center border-t-4 border-teal-500">
+                                <strong class="text-teal-400 block mb-2">Shadows (암부)</strong>
+                                <div class="w-12 h-12 bg-teal-600 rounded-full mx-auto mb-2 opacity-80 shadow-[0_0_15px_rgba(13,148,136,0.5)]"></div>
+                                <div class="text-xs text-slate-300 font-mono space-y-1">
+                                    <p>Hue: <span class="text-teal-300">210~230</span></p>
+                                    <p>Sat: <span class="text-teal-300">10~20</span></p>
+                                </div>
+                            </div>
+                            <div class="bg-slate-800 p-4 rounded-lg text-center border-t-4 border-orange-500">
+                                <strong class="text-orange-400 block mb-2">Highlights (명부)</strong>
+                                <div class="w-12 h-12 bg-orange-500 rounded-full mx-auto mb-2 opacity-80 shadow-[0_0_15px_rgba(249,115,22,0.5)]"></div>
+                                <div class="text-xs text-slate-300 font-mono space-y-1">
+                                    <p>Hue: <span class="text-orange-300">30~45</span></p>
+                                    <p>Sat: <span class="text-orange-300">10~20</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            photography: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-orange">📸 실전 촬영 가이드</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">PDF 요약</span>
+                    </h2>
+
+                    <div class="relative border-l-2 border-slate-700/50 ml-3 space-y-12 py-2">
+                        <!-- 1. M모드 3요소 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.6)] ring-4 ring-slate-900"></span>
+                            <section>
+                                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    M모드 핵심 3요소
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="glass-card p-5 rounded-xl border-t-2 border-orange-500">
+                                        <strong class="text-orange-400 block mb-2 text-lg">F (조리개)</strong>
+                                        <ul class="text-sm text-slate-300 space-y-1">
+                                            <li>• 숫자 작음: 밝아짐 + 아웃포커싱</li>
+                                            <li>• 숫자 큼: 어두워짐 + 빛갈라짐</li>
+                                            <li>• <span class="bg-orange-500/20 text-orange-200 px-1 rounded">Best: F4 ~ F11</span></li>
+                                        </ul>
+                                    </div>
+                                    <div class="glass-card p-5 rounded-xl border-t-2 border-yellow-500">
+                                        <strong class="text-yellow-400 block mb-2 text-lg">ISO (감도)</strong>
+                                        <ul class="text-sm text-slate-300 space-y-1">
+                                            <li>• 높음: 밝아짐 + <span class="text-red-400">노이즈 발생</span></li>
+                                            <li>• 팁: 야외/실내는 ISO 400 이하 권장</li>
+                                            <li>• 셔터스피드로 밝기 조절 추천</li>
+                                        </ul>
+                                    </div>
+                                    <div class="glass-card p-5 rounded-xl border-t-2 border-blue-500">
+                                        <strong class="text-blue-400 block mb-2 text-lg">셔터스피드</strong>
+                                        <ul class="text-sm text-slate-300 space-y-1">
+                                            <li>• 빠름(1/250↑): 순간 포착</li>
+                                            <li>• 느림(1/30↓): 흔들림 주의</li>
+                                            <li>• <span class="bg-blue-500/20 text-blue-200 px-1 rounded">최소 1/60초 확보</span> (삼각대X)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- 2. 상황별 추천 세팅 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.6)] ring-4 ring-slate-900"></span>
+                            <section>
+                                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    상황별 추천 레시피
+                                </h3>
+                                <div class="space-y-4">
+                                    <!-- 야경 -->
+                                    <div class="glass-card p-6 rounded-xl relative overflow-hidden">
+                                        <div class="absolute right-0 top-0 p-3 bg-slate-800 rounded-bl-xl text-xs text-slate-400 font-bold border-l border-b border-slate-700">🌙 야경 촬영</div>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <strong class="text-white block mb-2">삼각대 필수 모드</strong>
+                                                <ul class="text-sm text-slate-400 space-y-1">
+                                                    <li>• 조리개: <span class="text-slate-200">F11 ~ F18</span></li>
+                                                    <li>• ISO: <span class="text-slate-200">100 ~ 200</span></li>
+                                                    <li>• 셔터: <span class="text-slate-200">10초 ~ 30초</span></li>
+                                                    <li>• WB: 약 3600K, 손떨방 OFF</li>
+                                                </ul>
+                                            </div>
+                                            <div class="border-t md:border-t-0 md:border-l border-slate-700 pt-4 md:pt-0 md:pl-6">
+                                                <strong class="text-white block mb-2">우티식 야경 (장노출)</strong>
+                                                <ul class="text-sm text-slate-400 space-y-1">
+                                                    <li>• 조리개: <span class="text-slate-200">F8 ~ F14</span></li>
+                                                    <li>• 셔터: 10~30초 (삼각대 사용)</li>
+                                                    <li>• ISO: 100 고정</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 인물/풍경 -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="glass-card p-5 rounded-xl">
+                                            <strong class="text-pink-400 block mb-2">👤 야외 인물 (빛 많음)</strong>
+                                            <ul class="text-sm text-slate-400 space-y-1">
+                                                <li>• 조리개: <span class="text-slate-200">F1.2 ~ F2.8</span> (낮을수록 굿)</li>
+                                                <li>• ISO: 100 고정</li>
+                                                <li>• 밝기: -0.3 EV (약간 어둡게)</li>
+                                                <li>• 셔터: 1/100 이상 확보</li>
+                                            </ul>
+                                        </div>
+                                        <div class="glass-card p-5 rounded-xl">
+                                            <strong class="text-teal-400 block mb-2">☁️ 흐린날 풍경 / 핸드헬드</strong>
+                                            <ul class="text-sm text-slate-400 space-y-1">
+                                                <li>• 조리개: <span class="text-slate-200">F5.6 ~ F7.1</span></li>
+                                                <li>• ISO: 100 고정</li>
+                                                <li>• 셔터: 1/50 이상 확보될 때까지 조리개 조절</li>
+                                                <li>• 밝기: -0.3 EV</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- 3. 구도 (Visual Guide) -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-teal-500 shadow-[0_0_10px_rgba(45,212,191,0.6)] ring-4 ring-slate-900"></span>
+                            <section>
+                                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    🖼️ PDF 속 구도 따라잡기 (Visual Guide)
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    
+                                    <!-- 1. Golden Triangle Composition (Corrected SVG) -->
+                                    <div class="glass-card rounded-xl overflow-hidden group hover:border-orange-500/50 transition" onclick="router('golden_triangle')" style="cursor: pointer;">
+                                        <div class="h-48 bg-slate-800 relative flex items-center justify-center overflow-hidden">
+                                            <!-- SVG from Deep Dive -->
+                                            <svg class="w-full h-full absolute inset-0" viewBox="0 0 400 300">
+                                                <rect width="400" height="300" fill="#1e293b" />
+                                                <line x1="0" y1="300" x2="400" y2="0" stroke="#fbbf24" stroke-width="3" />
+                                                <line x1="0" y1="0" x2="144" y2="192" stroke="#fbbf24" stroke-width="2" stroke-dasharray="5 5" />
+                                                <line x1="400" y1="300" x2="256" y2="108" stroke="#fbbf24" stroke-width="2" stroke-dasharray="5 5" />
+                                                <circle cx="144" cy="192" r="6" fill="#f59e0b" />
+                                                <circle cx="256" cy="108" r="6" fill="#f59e0b" />
+                                                <text x="200" y="150" fill="#fbbf24" font-size="12" text-anchor="middle" transform="rotate(-37 200 150)">Main Diagonal</text>
+                                                <text x="60" y="100" fill="#94a3b8" font-size="10">Triangle A</text>
+                                                <text x="340" y="200" fill="#94a3b8" font-size="10">Triangle B</text>
+                                            </svg>
+                                            <div class="absolute bottom-3 left-4">
+                                                <span class="bg-orange-500 text-white text-xs px-2 py-0.5 rounded font-bold shadow-lg">PDF P.7</span>
+                                            </div>
+                                        </div>
+                                        <div class="p-5">
+                                            <div class="flex justify-between items-start">
+                                                <strong class="text-orange-400 block mb-1">📐 골든 트라이앵글</strong>
+                                                <span class="text-xs bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded">Click for Detail</span>
+                                            </div>
+                                            <p class="text-sm text-slate-300">"황금 비율의 역동적 분할"</p>
+                                            <p class="text-xs text-slate-500 mt-2">대각선과 수직선이 만나는 교차점에 피사체를 배치하세요.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Frame Composition (SVG) -->
+                                    <div class="glass-card rounded-xl overflow-hidden group hover:border-teal-500/50 transition" onclick="router('frame_composition')" style="cursor: pointer;">
+                                        <div class="h-48 bg-slate-800 relative flex items-center justify-center overflow-hidden">
+                                            <!-- Decorative SVG for Framing -->
+                                            <svg class="w-full h-full absolute inset-0 text-teal-500/20" viewBox="0 0 100 100">
+                                                <rect x="10" y="10" width="80" height="80" stroke="currentColor" stroke-width="2" fill="none" />
+                                                <rect x="25" y="25" width="50" height="50" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" fill="none" />
+                                            </svg>
+                                            <div class="relative z-10 w-32 h-24 border-4 border-teal-500 rounded-lg flex items-center justify-center">
+                                                <div class="w-8 h-12 bg-teal-500/50 rounded-full"></div>
+                                            </div>
+                                            <div class="absolute bottom-3 left-4">
+                                                <span class="bg-teal-500 text-white text-xs px-2 py-0.5 rounded font-bold">PDF P.10</span>
+                                            </div>
+                                        </div>
+                                        <div class="p-5">
+                                            <div class="flex justify-between items-start">
+                                                <strong class="text-teal-400 block mb-1">🖼️ 액자 구도 (둘러싸기)</strong>
+                                                <span class="text-xs bg-teal-500/20 text-teal-400 px-2 py-0.5 rounded">Click for Detail</span>
+                                            </div>
+                                            <p class="text-sm text-slate-300">"마름모 / 둘러싸이게"</p>
+                                            <p class="text-xs text-slate-500 mt-2">창문, 나무, 아치 등으로 피사체를 감싸 액자처럼 만듭니다. 주제를 강조하고 깊이감을 더해줍니다.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        
+                        <!-- 4. WB & 렌즈 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.6)] ring-4 ring-slate-900"></span>
+                             <section>
+                                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                    화이트 밸런스 & 렌즈
+                                </h3>
+                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div class="glass-card p-4 rounded-xl">
+                                        <strong class="text-purple-400 block mb-2">🌡️ WB (색온도) 추천</strong>
+                                        <ul class="space-y-1 text-slate-300">
+                                            <li class="flex justify-between"><span>야외 (맑음)</span> <span>5500K</span></li>
+                                            <li class="flex justify-between"><span>해질녘</span> <span>6000~6500K</span></li>
+                                            <li class="flex justify-between"><span>카페/실내</span> <span>4300K</span></li>
+                                            <li class="flex justify-between"><span>야경</span> <span>3600~3700K</span></li>
+                                        </ul>
+                                    </div>
+                                    <div class="glass-card p-4 rounded-xl">
+                                        <strong class="text-purple-400 block mb-2">🔍 렌즈 활용</strong>
+                                        <ul class="space-y-1 text-slate-300">
+                                            <li><strong class="text-slate-200">편광(CPL):</strong> 반사 제거 (유리, 물, 하늘)</li>
+                                            <li><strong class="text-slate-200">단렌즈:</strong> 밝음, 실내/인물 유리 (아웃포커싱)</li>
+                                            <li><strong class="text-slate-200">15-80mm:</strong> 다양한 피사체 용이</li>
+                                        </ul>
+                                    </div>
+                                 </div>
+                             </section>
+                        </div>
+                    </div>
+                </div>
+            `,
+            landscape: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-2 text-gradient-cyan">🏔️ 풍경 사진 레시피</h2>
+                    <p class="text-slate-400 mb-8">풍경은 디테일과 대비를 살리는 것이 핵심입니다.<br>사진마다 다르지만, 이 범위에서 시작해보세요.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Tone Section -->
+                        <div class="glass-card p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">기본 톤 (Tone)</h3>
+                            ${createSlider('노출 (Exposure)', '±0.3 ~ 0.7', 55, 'blue')}
+                            ${createSlider('대비 (Contrast)', '+5 ~ +20', 65, 'blue')}
+                            ${createSlider('하이라이트', '-30 ~ -70 (하늘 복원)', 30, 'blue')}
+                            ${createSlider('섀도우', '+20 ~ +60 (디테일 복원)', 70, 'blue')}
+                            ${createSlider('화이트', '+5 ~ +20', 60, 'blue')}
+                            ${createSlider('블랙', '-5 ~ -20 (대비감)', 40, 'blue')}
+                        </div>
+
+                        <!-- Texture & Color Section -->
+                        <div class="glass-card p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">선명도 & 색감</h3>
+                            ${createSlider('텍스처 (Texture)', '+5 ~ +20', 60, 'green')}
+                            ${createSlider('명료도 (Clarity)', '+10 ~ +25 (구름/산)', 65, 'green')}
+                            ${createSlider('디헤이즈 (Dehaze)', '+5 ~ +20 (안개 제거)', 60, 'green')}
+                            <div class="my-4 border-t border-slate-700"></div>
+                            ${createSlider('생동감 (Vibrance)', '+15 ~ +30', 70, 'purple')}
+                            ${createSlider('채도 (Saturation)', '0 ~ +10', 55, 'purple')}
+                        </div>
+
+                        <!-- HSL Tip -->
+                        <div class="glass-card p-6 rounded-xl md:col-span-2 border border-slate-700 bg-slate-900/50">
+                            <h3 class="text-lg font-bold text-white mb-3">🎨 HSL 꿀팁 (풍경)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-slate-900 p-4 rounded border border-slate-600">
+                                    <strong class="text-blue-400">하늘 (Blue/Aqua)</strong>
+                                    <p class="text-sm text-slate-300 mt-1">채도 +10~30 / 광도 -10~-25</p>
+                                    <p class="text-xs text-slate-500">하늘을 더 깊고 파랗게 만듭니다.</p>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded border border-slate-600">
+                                    <strong class="text-green-400">풀/나무 (Green)</strong>
+                                    <p class="text-sm text-slate-300 mt-1">채도 -10~0 / 색조 → 노랑 쪽</p>
+                                    <p class="text-xs text-slate-500">너무 쨍한 초록을 차분하게 하여 영화 같은 느낌을 줍니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            portrait: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-2 text-gradient-pink">👤 인물 사진 레시피</h2>
+                    <p class="text-slate-400 mb-8">인물은 피부를 부드럽고 자연스럽게 표현하는 것이 핵심입니다.<br>풍경보다 값을 부드럽게 가져가세요.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Tone Section -->
+                        <div class="glass-card p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">기본 톤 (Tone)</h3>
+                            ${createSlider('노출', '피부가 날리지 않게 ±0.3', 55, 'pink')}
+                            ${createSlider('대비', '0 ~ +15 (주름 방지)', 55, 'pink')}
+                            ${createSlider('하이라이트', '-10 ~ -40 (번들거림↓)', 40, 'pink')}
+                            ${createSlider('섀도우', '+10 ~ +40 (머릿결/눈)', 65, 'pink')}
+                            ${createSlider('화이트', '0 ~ +15', 55, 'pink')}
+                            ${createSlider('블랙', '-5 ~ -15 (입체감)', 45, 'pink')}
+                        </div>
+
+                        <!-- Texture & Color Section -->
+                        <div class="glass-card p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">질감 & 색감</h3>
+                            ${createSlider('텍스처', '-5 ~ 0 (피부 부드럽게)', 48, 'red')}
+                            ${createSlider('명료도', '-5 ~ +5 (아주 약하게)', 52, 'red')}
+                            ${createSlider('디헤이즈', '0 (거의 안 씀)', 50, 'red')}
+                            <div class="my-4 border-t border-slate-700"></div>
+                            ${createSlider('생동감', '+5 ~ +20 (배경만 살짝)', 60, 'purple')}
+                            ${createSlider('채도', '-5 ~ +5 (피부톤 유지)', 52, 'purple')}
+                        </div>
+
+                        <!-- HSL Tip -->
+                        <div class="glass-card p-6 rounded-xl md:col-span-2 border border-slate-700 bg-slate-900/50">
+                            <h3 class="text-lg font-bold text-white mb-3">🎨 HSL 꿀팁 (인물)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-slate-900 p-4 rounded border border-slate-600">
+                                    <strong class="text-orange-400">피부 (Orange)</strong>
+                                    <p class="text-sm text-slate-300 mt-1">채도 -5~+5 / 광도 +5~+15</p>
+                                    <p class="text-xs text-slate-500">광도를 올려 피부를 화사하고 뽀얗게 만듭니다.</p>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded border border-slate-600">
+                                    <strong class="text-red-400">입술/볼 (Red)</strong>
+                                    <p class="text-sm text-slate-300 mt-1">채도 -5 ~ 0</p>
+                                    <p class="text-xs text-slate-500">홍조나 입술이 너무 빨개지지 않도록 살짝 눌러줍니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            concepts: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 text-gradient-gold">💡 핵심 개념 정리</h2>
+
+                    <div class="space-y-12">
+                        <!-- RAW vs JPG -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                                <span class="bg-yellow-500 text-black text-sm px-2 py-1 rounded font-bold">VS</span>
+                                JPG vs RAW
+                            </h3>
+                            <div class="glass-card rounded-xl overflow-hidden border border-slate-700 shadow-xl">
+                                <div class="grid grid-cols-1 md:grid-cols-2">
+                                    <!-- JPG Side -->
+                                    <div class="p-6 border-b md:border-b-0 md:border-r border-slate-700 bg-orange-900/10 relative overflow-hidden">
+                                        <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                                        <h4 class="text-xl font-bold text-orange-400 mb-2 flex items-center gap-2">
+                                            🍕 JPG (완성된 요리)
+                                        </h4>
+                                        <p class="text-slate-300 text-sm leading-relaxed z-10 relative">
+                                            이미 압축과 양념(보정)이 끝난 상태.<br>
+                                            다시 간을 하려다간 재료가 망가집니다.<br>
+                                            <span class="inline-block mt-2 bg-slate-900 px-2 py-1 rounded text-orange-200 text-xs">복원력: 20~30%</span>
+                                        </p>
+                                    </div>
+                                    <!-- RAW Side -->
+                                    <div class="p-6 bg-green-900/10 relative overflow-hidden">
+                                        <div class="absolute top-0 left-0 md:left-auto md:right-0 w-1 h-full bg-green-500"></div>
+                                        <h4 class="text-xl font-bold text-green-400 mb-2 flex items-center gap-2">
+                                            🥩 RAW (신선한 재료)
+                                        </h4>
+                                        <p class="text-slate-300 text-sm leading-relaxed z-10 relative">
+                                            가공되지 않은 날것의 데이터.<br>
+                                            어떤 요리(보정)든 최상의 퀄리티로 가능합니다.<br>
+                                            <span class="inline-block mt-2 bg-slate-900 px-2 py-1 rounded text-green-200 text-xs">복원력: 100% (강력 추천)</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Histogram -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-white mb-4">📊 히스토그램 (Histogram) 보는 법</h3>
+                            <div class="glass-card p-6 rounded-xl border border-slate-700 shadow-md relative overflow-hidden">
+                                <!-- Background Gradient decoration -->
+                                <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+                                
+                                <div class="flex items-end h-32 gap-1 mb-2 px-4 pb-0 border-b border-slate-500 relative">
+                                    <div class="w-1/3 h-full flex items-end justify-center bg-gradient-to-t from-slate-900 via-slate-800 to-transparent opacity-80 rounded-t">
+                                        <span class="text-xs text-slate-400 absolute bottom-2 font-bold">Shadows</span>
+                                    </div>
+                                    <div class="w-1/3 h-full flex items-end justify-center bg-gradient-to-t from-slate-600 via-slate-500 to-transparent opacity-80 rounded-t">
+                                        <span class="text-xs text-slate-200 absolute bottom-2 font-bold">Midtones</span>
+                                    </div>
+                                    <div class="w-1/3 h-full flex items-end justify-center bg-gradient-to-t from-slate-200 via-white to-transparent opacity-80 rounded-t">
+                                        <span class="text-xs text-slate-800 absolute bottom-2 font-bold">Highlights</span>
+                                    </div>
+                                </div>
+                                <p class="text-slate-400 text-sm mt-4 text-center">
+                                    "그래프가 <strong>벽(양 끝)</strong>에 닿지 않게 주차하세요."<br>
+                                    왼쪽 벽 = 검은색 떡짐 / 오른쪽 벽 = 하얀색 날아감
+                                </p>
+                            </div>
+                        </section>
+
+                        <!-- Sliders Dictionary -->
+                        <section>
+                            <h3 class="text-2xl font-bold text-white mb-4">🎛️ 슬라이더 용어 사전</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="glass-card p-4 rounded-lg border-t-4 border-yellow-400 shadow hover:-translate-y-1 transition duration-200">
+                                    <strong class="text-yellow-400 block mb-1">☀️ 노출 (Exposure)</strong>
+                                    <p class="text-sm text-slate-400">사진의 전체 밝기. 컵에 물을 채우는 양과 같습니다.</p>
+                                </div>
+                                <div class="glass-card p-4 rounded-lg border-t-4 border-slate-400 shadow hover:-translate-y-1 transition duration-200">
+                                    <strong class="text-slate-200 block mb-1">🌓 대비 (Contrast)</strong>
+                                    <p class="text-sm text-slate-400">밝은 곳은 더 밝게, 어두운 곳은 더 어둡게. 사진의 '힘'을 조절합니다.</p>
+                                </div>
+                                <div class="glass-card p-4 rounded-lg border-t-4 border-pink-400 shadow hover:-translate-y-1 transition duration-200">
+                                    <strong class="text-pink-400 block mb-1">🌸 활기 (Vibrance)</strong>
+                                    <p class="text-sm text-slate-400">'똑똑한 채도'. 이미 쨍한 색은 보호하고, 칙칙한 색만 살려줍니다.</p>
+                                </div>
+                                <div class="glass-card p-4 rounded-lg border-t-4 border-emerald-400 shadow hover:-translate-y-1 transition duration-200">
+                                    <strong class="text-emerald-400 block mb-1">🌿 텍스처 (Texture)</strong>
+                                    <p class="text-sm text-slate-400">미세한 질감의 대비. 올리면 까슬까슬, 내리면 뽀샤시해집니다.</p>
+                                </div>
+                                <div class="glass-card p-4 rounded-lg border-t-4 border-cyan-400 shadow hover:-translate-y-1 transition duration-200">
+                                    <strong class="text-cyan-400 block mb-1">🌫️ 디헤이즈 (Dehaze)</strong>
+                                    <p class="text-sm text-slate-400">안개 제거 기능. 뿌연 공기층을 걷어내고 쨍하게 만듭니다.</p>
+                                </div>
+                                <div class="glass-card p-4 rounded-lg border-t-4 border-red-400 shadow hover:-translate-y-1 transition duration-200">
+                                    <strong class="text-red-400 block mb-1">🌡️ 색온도 (Temp)</strong>
+                                    <p class="text-sm text-slate-400">올리면 따뜻한(노랑/주황) 느낌, 내리면 차가운(파랑) 느낌.</p>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            `,
+            golden_triangle: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-gold">📐 골든 트라이앵글 심화</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">고급 구도</span>
+                    </h2>
+
+                    <!-- 1. 기본 개념 & 시각화 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                        <div class="glass-card p-6 rounded-xl flex flex-col justify-center">
+                            <h3 class="text-xl font-bold text-white mb-4">기본 개념 및 원리</h3>
+                            <p class="text-slate-300 mb-4 leading-relaxed">
+                                프레임의 한 모서리에서 반대쪽 모서리까지 <strong class="text-yellow-400">대각선</strong>을 긋고, 나머지 두 모서리에서 이 대각선에 <strong class="text-yellow-400">수직선</strong>을 그어 여러 삼각형을 만드는 구도입니다.
+                            </p>
+                            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 space-y-2">
+                                <p class="text-sm text-slate-400">✨ <strong class="text-white">황금 비율 (1.618)</strong>: 만들어진 삼각형들의 비율이 황금비에 가까워 자연스럽고 조화롭습니다.</p>
+                                <p class="text-sm text-slate-400">🌊 <strong class="text-white">역동성</strong>: 정적인 3분할(체스판)과 달리, 물결이나 나뭇가지처럼 유기적인 흐름을 만듭니다.</p>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-xl overflow-hidden bg-slate-800 relative h-64 md:h-auto border border-yellow-500/20 shadow-lg shadow-yellow-500/5">
+                            <!-- SVG Visualization -->
+                            <svg class="w-full h-full absolute inset-0" viewBox="0 0 400 300">
+                                <!-- Background Grid (Optional) -->
+                                <rect width="400" height="300" fill="#1e293b" />
+                                
+                                <!-- Main Diagonal (Bottom-Left to Top-Right) -->
+                                <line x1="0" y1="300" x2="400" y2="0" stroke="#fbbf24" stroke-width="3" />
+                                
+                                <!-- Perpendicular Line 1 (Top-Left to Diagonal) -->
+                                <!-- Formula intersection: roughly x=144, y=192 for 4:3 ratio approximate -->
+                                <line x1="0" y1="0" x2="144" y2="192" stroke="#fbbf24" stroke-width="2" stroke-dasharray="5 5" />
+                                
+                                <!-- Perpendicular Line 2 (Bottom-Right to Diagonal) -->
+                                <line x1="400" y1="300" x2="256" y2="108" stroke="#fbbf24" stroke-width="2" stroke-dasharray="5 5" />
+                                
+                                <!-- Intersection Points -->
+                                <circle cx="144" cy="192" r="6" fill="#f59e0b" />
+                                <circle cx="256" cy="108" r="6" fill="#f59e0b" />
+                                
+                                <!-- Labels -->
+                                <text x="200" y="150" fill="#fbbf24" font-size="12" text-anchor="middle" transform="rotate(-37 200 150)">Main Diagonal</text>
+                                <text x="60" y="100" fill="#94a3b8" font-size="10">Triangle A</text>
+                                <text x="340" y="200" fill="#94a3b8" font-size="10">Triangle B</text>
+                            </svg>
+                            <div class="absolute bottom-3 right-4 text-xs text-yellow-500/50 font-mono">Golden Triangle Ratio</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 언제, 어떻게 쓰나요? -->
+                    <section class="mb-12">
+                        <div class="glass-card p-8 rounded-xl border-l-4 border-yellow-500 relative">
+                            <h3 class="text-xl font-bold text-white mb-4">언제, 어떻게 쓰나요?</h3>
+                            <p class="text-slate-300 mb-4">
+                                <span class="bg-yellow-500/20 text-yellow-200 px-1 rounded">대각선이 두드러지는 장면</span> (산 능선, 건물 경사, 도로 등)에 특히 효과적입니다.
+                            </p>
+                            <ul class="space-y-3 text-slate-400 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-yellow-500 mt-1">●</span>
+                                    <span><strong>시선의 이동:</strong> 피사체를 대각선 위나 교차점에 두면 시선이 자연스럽게 흘러 깊이감과 이야기성이 생깁니다.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-yellow-500 mt-1">●</span>
+                                    <span><strong>균형과 긴장감:</strong> 안정감(삼각형 구조)과 긴장감(대각선)을 동시에 줄 수 있는 고급 기술입니다.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- 3. 장르별 활용 예시 -->
+                    <section class="mb-12">
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <span class="w-2 h-6 bg-gradient-to-b from-yellow-400 to-orange-500 rounded-full"></span>
+                            장르별 활용 예시
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Landscape -->
+                            <div class="glass-card p-6 rounded-xl hover:-translate-y-1 transition duration-300">
+                                <div class="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 mb-4">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <h4 class="text-lg font-bold text-white mb-2">풍경 사진</h4>
+                                <p class="text-sm text-slate-400 leading-relaxed">
+                                    산 능선, 강의 흐름을 대각선으로 삼으세요. <strong class="text-green-300">교차점</strong>에 태양이나 구름을 두어 리듬감을 만듭니다.
+                                </p>
+                            </div>
+                            <!-- Portrait -->
+                            <div class="glass-card p-6 rounded-xl hover:-translate-y-1 transition duration-300">
+                                <div class="w-10 h-10 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400 mb-4">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <h4 class="text-lg font-bold text-white mb-2">인물 사진</h4>
+                                <p class="text-sm text-slate-400 leading-relaxed">
+                                    모델의 팔다리 기울기로 대각선을 만드세요. <strong class="text-pink-300">눈이나 얼굴</strong>을 교차점에 두어 시선을 집중시킵니다.
+                                </p>
+                            </div>
+                            <!-- Street -->
+                            <div class="glass-card p-6 rounded-xl hover:-translate-y-1 transition duration-300">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 mb-4">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                </div>
+                                <h4 class="text-lg font-bold text-white mb-2">거리 사진</h4>
+                                <p class="text-sm text-slate-400 leading-relaxed">
+                                    도로나 건물 선을 대각선으로 활용하세요. 복잡한 거리에서도 주제(사람, 풍선 등)를 <strong class="text-blue-300">교차점</strong>에 두면 돋보입니다.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 4. 실전 팁 (Restored Section) -->
+                    <section>
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <span class="w-2 h-6 bg-slate-500 rounded-full"></span>
+                            촬영 & 후보정 실전 팁
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="glass-card p-5 rounded-xl flex gap-4 items-start">
+                                <span class="text-2xl">🧠</span>
+                                <div>
+                                    <strong class="text-white block mb-1">촬영 전 장면 분석</strong>
+                                    <p class="text-sm text-slate-400">카메라를 들기 전, 눈으로 먼저 대각선과 삼각형을 그려보세요. 기울어진 나무나 도로 등 '선'이 되는 요소를 먼저 찾습니다.</p>
+                                </div>
+                            </div>
+                            <div class="glass-card p-5 rounded-xl flex gap-4 items-start">
+                                <span class="text-2xl">📷</span>
+                                <div>
+                                    <strong class="text-white block mb-1">앵글과 위치 조정</strong>
+                                    <p class="text-sm text-slate-400">그냥 찍지 마세요. 카메라 높이나 기울기를 바꾸고, 줌 인/아웃을 통해 피사체를 대각선과 교차점에 정확히 맞춰보세요.</p>
+                                </div>
+                            </div>
+                            <div class="glass-card p-5 rounded-xl flex gap-4 items-start">
+                                <span class="text-2xl">🕺</span>
+                                <div>
+                                    <strong class="text-white block mb-1">인물 포즈 지시</strong>
+                                    <p class="text-sm text-slate-400">"한쪽 팔을 뻗어보세요" 또는 "다리를 굽혀 삼각형을 만들어보세요"라고 구체적으로 제안하여 자연스러운 대각선을 유도합니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            `,
+            frame_composition: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-teal">🖼️ 액자 구도 (Frame in Frame)</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">시선 집중</span>
+                    </h2>
+
+                    <!-- 1. 정의 및 원리 시각화 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                        <div class="glass-card p-6 rounded-xl flex flex-col justify-center">
+                            <h3 class="text-xl font-bold text-white mb-4">액자 구도란?</h3>
+                            <p class="text-slate-300 mb-4 leading-relaxed">
+                                사진 속에서 창문, 문틀, 나뭇가지 등 주변 사물을 이용해 피사체를 둘러싸 <strong class="text-teal-400">‘액자처럼’</strong> 감싸는 구도입니다.
+                            </p>
+                            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700 space-y-2">
+                                <p class="text-sm text-slate-400">✨ <strong class="text-white">시선 집중</strong>: 화면 안에 또 하나의 프레임을 만들어 시선을 강제로 중앙으로 모읍니다.</p>
+                                <p class="text-sm text-slate-400">🌌 <strong class="text-white">깊이감</strong>: [전경 액자] - [피사체] - [배경]의 층(Layer)이 생겨 입체감이 살아납니다.</p>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-xl overflow-hidden bg-slate-800 relative h-64 md:h-auto border border-teal-500/20 shadow-lg shadow-teal-500/5 flex items-center justify-center">
+                            <!-- SVG Visualization -->
+                            <svg class="w-full h-full absolute inset-0" viewBox="0 0 400 300">
+                                <!-- Background Scene -->
+                                <rect width="400" height="300" fill="#1e293b" />
+                                <!-- Subject (Bright) -->
+                                <circle cx="200" cy="150" r="30" fill="#2dd4bf" filter="url(#glow)" />
+                                <!-- Foreground Frame (Darker) -->
+                                <path d="M0,0 L400,0 L400,300 L0,300 Z M100,50 L300,50 L300,250 L100,250 Z" fill="#0f172a" fill-opacity="0.8" fill-rule="evenodd" />
+                                
+                                <!-- Focus Lines -->
+                                <line x1="0" y1="0" x2="100" y2="50" stroke="#2dd4bf" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4 4" />
+                                <line x1="400" y1="0" x2="300" y2="50" stroke="#2dd4bf" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4 4" />
+                                <line x1="0" y1="300" x2="100" y2="250" stroke="#2dd4bf" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4 4" />
+                                <line x1="400" y1="300" x2="300" y2="250" stroke="#2dd4bf" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="4 4" />
+
+                                <!-- Definitions -->
+                                <defs>
+                                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                        <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                                        <feMerge>
+                                            <feMergeNode in="coloredBlur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+                                
+                                <!-- Labels -->
+                                <text x="200" y="280" fill="#94a3b8" font-size="12" text-anchor="middle">Darker Foreground Frame</text>
+                                <text x="200" y="155" fill="#1e293b" font-size="10" text-anchor="middle" font-weight="bold">Subject</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- 2. 효과 & 활용 요소 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                        <!-- Effects -->
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                                <span class="w-2 h-6 bg-teal-500 rounded-full"></span>
+                                액자 구도가 주는 효과
+                            </h3>
+                            <div class="glass-card p-5 rounded-xl border-l-4 border-teal-500">
+                                <strong class="text-teal-300 block mb-1">🧹 시선 정리</strong>
+                                <p class="text-sm text-slate-400">배경이 복잡하거나 지저분할 때, 액자로 주변을 가려버리면 주제가 명확해집니다.</p>
+                            </div>
+                            <div class="glass-card p-5 rounded-xl border-l-4 border-blue-500">
+                                <strong class="text-blue-300 block mb-1">👀 편안한 감상</strong>
+                                <p class="text-sm text-slate-400">'어디를 봐야 하는지' 가이드라인을 제시해 주어 보는 사람이 편안함을 느낍니다.</p>
+                            </div>
+                        </div>
+
+                        <!-- Elements -->
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                                <span class="w-2 h-6 bg-indigo-500 rounded-full"></span>
+                                어떤 걸 액자로 쓸까?
+                            </h3>
+                            <div class="glass-card p-5 rounded-xl">
+                                <ul class="space-y-3 text-sm text-slate-300">
+                                    <li class="flex items-center gap-3">
+                                        <span class="bg-indigo-500/20 p-2 rounded text-indigo-300">🏛️</span>
+                                        <span><strong>건축물:</strong> 문, 창문, 아치, 기둥 사이, 다리 아래</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <span class="bg-green-500/20 p-2 rounded text-green-300">🌿</span>
+                                        <span><strong>자연 요소:</strong> 나뭇가지, 동굴 입구, 터널, 그늘</span>
+                                    </li>
+                                    <li class="flex items-center gap-3">
+                                        <span class="bg-orange-500/20 p-2 rounded text-orange-300">🪜</span>
+                                        <span><strong>일상 소품:</strong> 난간, 창틀, 실내 구조물, 실루엣</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. 실전 촬영 팁 & 예시 -->
+                    <section>
+                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                            <span class="w-2 h-6 bg-slate-500 rounded-full"></span>
+                            촬영 포인트 & 상황별 예시
+                        </h3>
+                        
+                        <div class="glass-card p-6 rounded-xl mb-8">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="text-center">
+                                    <div class="text-3xl mb-2">🔍</div>
+                                    <strong class="text-white block mb-1">프레임 먼저 찾기</strong>
+                                    <p class="text-xs text-slate-400">피사체보다 '액자가 될 만한 것'을 먼저 찾고, 그 안에 피사체를 넣으세요.</p>
+                                </div>
+                                <div class="text-center border-t md:border-t-0 md:border-l md:border-r border-slate-700 py-4 md:py-0 px-2">
+                                    <div class="text-3xl mb-2">🚶</div>
+                                    <strong class="text-white block mb-1">위치 이동 필수</strong>
+                                    <p class="text-xs text-slate-400">조금만 움직여도 액자 모양이 바뀝니다. 앞뒤좌우로 움직여 피사체를 중앙에 맞추세요.</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-3xl mb-2">💡</div>
+                                    <strong class="text-white block mb-1">노출 조절</strong>
+                                    <p class="text-xs text-slate-400">액자 부분은 어둡게, 피사체는 밝게 찍으면 시선 집중 효과가 극대화됩니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="glass-card p-4 rounded-xl border-t-2 border-teal-500">
+                                <strong class="text-teal-400 block mb-2">✈️ 여행지에서</strong>
+                                <p class="text-sm text-slate-400">창문 너머 풍경, 성문이나 아치 사이에 서 있는 인물을 찍어보세요.</p>
+                            </div>
+                            <div class="glass-card p-4 rounded-xl border-t-2 border-pink-500">
+                                <strong class="text-pink-400 block mb-2">👤 인물 사진</strong>
+                                <p class="text-sm text-slate-400">배경보다 앞쪽의 난간, 나뭇가지로 인물을 감싸면 초점이 얼굴로 몰립니다.</p>
+                            </div>
+                            <div class="glass-card p-4 rounded-xl border-t-2 border-yellow-500">
+                                <strong class="text-yellow-400 block mb-2">🏙️ 거리 사진</strong>
+                                <p class="text-sm text-slate-400">지하철 입구, 다리 아래를 액자로 삼아 지나가는 사람을 포착하세요.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            `,
+            workflow: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-cyan">🛠️ 핵심 보정 흐름 (6단계)</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">Workflow</span>
+                    </h2>
+                    
+                    <div class="relative border-l-2 border-slate-700/50 ml-3 space-y-12 py-2">
+                        <!-- Step 1 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.6)] ring-4 ring-slate-900"></span>
+                            <div class="glass-card rounded-xl p-6 relative hover:border-cyan-500/30 transition duration-300">
+                                <span class="absolute top-4 right-4 text-5xl font-bold text-cyan-500/10 select-none">01</span>
+                                <h3 class="text-xl font-bold text-cyan-400 mb-3">카메라 로우 패널 이해</h3>
+                                <p class="text-slate-300 mb-3">RAW 파일을 열면 가장 먼저 만나는 화면입니다.</p>
+                                <ul class="space-y-2 text-sm text-slate-400">
+                                    <li class="flex items-start gap-2"><span class="text-cyan-500">•</span> <span><strong class="text-slate-200">기본(Basic):</strong> 화이트 밸런스, 노출, 대비 등 핵심 조절</span></li>
+                                    <li class="flex items-start gap-2"><span class="text-cyan-500">•</span> <span><strong class="text-slate-200">곡선(Curve):</strong> 톤 곡선을 S자로 만들어 대비감 상승</span></li>
+                                    <li class="flex items-start gap-2"><span class="text-cyan-500">•</span> <span><strong class="text-slate-200">세부(Detail):</strong> 노이즈 감소 및 선명도(샤프닝)</span></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)] ring-4 ring-slate-900"></span>
+                            <div class="glass-card rounded-xl p-6 relative hover:border-blue-500/30 transition duration-300">
+                                <span class="absolute top-4 right-4 text-5xl font-bold text-blue-500/10 select-none">02</span>
+                                <h3 class="text-xl font-bold text-blue-400 mb-3">기본 보정 순서 (톤 잡기)</h3>
+                                <div class="bg-slate-800/50 p-4 rounded-lg text-sm text-slate-300 mb-2 border border-blue-900/30">
+                                    1. <strong>화이트 밸런스</strong>: 눈으로 본 색온도 맞추기<br>
+                                    2. <strong>노출</strong>: 전체 밝기 올리기/내리기<br>
+                                    3. <strong>밝은/어두운 영역</strong>: 디테일 살리기
+                                </div>
+                                <p class="text-slate-500 text-sm">💡 꿀팁: 밝은 영역은 하늘, 어두운 영역은 그림자를 살릴 때 씁니다.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.6)] ring-4 ring-slate-900"></span>
+                            <div class="glass-card rounded-xl p-6 relative hover:border-indigo-500/30 transition duration-300">
+                                <span class="absolute top-4 right-4 text-5xl font-bold text-indigo-500/10 select-none">03</span>
+                                <h3 class="text-xl font-bold text-indigo-400 mb-3">선명도와 톤 다듬기</h3>
+                                <p class="text-slate-300 text-sm mb-2">사진이 뿌옇다면 이 기능들을 활용하세요.</p>
+                                <ul class="space-y-1 text-sm text-slate-400">
+                                    <li><strong class="text-indigo-300">디헤이즈:</strong> 안개 낀 느낌을 없애고 쨍하게</li>
+                                    <li><strong class="text-indigo-300">텍스처:</strong> 질감을 살짝 올려 디테일 강조</li>
+                                    <li><strong class="text-indigo-300">곡선:</strong> 약한 S자 곡선으로 톤 정리</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.6)] ring-4 ring-slate-900"></span>
+                            <div class="glass-card rounded-xl p-6 border border-pink-500/30 relative shadow-lg shadow-pink-500/5 overflow-hidden group">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-pink-500 to-purple-600"></div>
+                                <span class="absolute top-4 right-4 text-5xl font-bold text-pink-500/10 select-none">04</span>
+                                <h3 class="text-xl font-bold text-gradient-pink mb-4">🎨 색상 혼합 (HSL) 심화</h3>
+                                <p class="text-slate-300 text-sm mb-5">색깔별로 3가지 요소를 개별 조절하는 <span class="text-pink-400 font-bold">마법의 단계</span></p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                    <div class="bg-slate-800/80 p-3 rounded border border-purple-500/30 hover:bg-slate-800 transition">
+                                        <div class="font-bold text-purple-400 mb-1">1. 색조 (Hue)</div>
+                                        <p class="text-slate-400 text-xs">"초록 풀을 노랗게?"<br>(색의 방향)</p>
+                                    </div>
+                                    <div class="bg-slate-800/80 p-3 rounded border border-pink-500/30 hover:bg-slate-800 transition">
+                                        <div class="font-bold text-pink-400 mb-1">2. 채도 (Sat)</div>
+                                        <p class="text-slate-400 text-xs">"색을 더 진하게!"<br>(색의 농도)</p>
+                                    </div>
+                                    <div class="bg-slate-800/80 p-3 rounded border border-blue-500/30 hover:bg-slate-800 transition">
+                                        <div class="font-bold text-blue-400 mb-1">3. 광도 (Lum)</div>
+                                        <p class="text-slate-400 text-xs">"파란 하늘만 어둡게"<br>(색의 밝기)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.6)] ring-4 ring-slate-900"></span>
+                            <div class="glass-card rounded-xl p-6 relative hover:border-violet-500/30 transition duration-300">
+                                <span class="absolute top-4 right-4 text-5xl font-bold text-violet-500/10 select-none">05</span>
+                                <h3 class="text-xl font-bold text-violet-400 mb-3">추가 패널 (광학/효과)</h3>
+                                <ul class="space-y-1 text-sm text-slate-400">
+                                    <li><strong class="text-violet-300">광학:</strong> 렌즈 색수차(보라색 테두리) 제거</li>
+                                    <li><strong class="text-violet-300">효과:</strong> 비네팅으로 가장자리를 어둡게 하여 시선 집중</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Step 6 -->
+                        <div class="relative pl-8">
+                            <span class="absolute -left-[9px] top-8 w-4 h-4 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)] ring-4 ring-slate-900"></span>
+                            <div class="glass-card rounded-xl p-6 relative hover:border-red-500/30 transition duration-300">
+                                <span class="absolute top-4 right-4 text-5xl font-bold text-red-500/10 select-none">06</span>
+                                <h3 class="text-xl font-bold text-red-400 mb-3">최종 점검: JPG vs RAW</h3>
+                                <p class="text-slate-300 text-sm mb-2 font-medium">"RAW는 옷을 껴입는 것, JPG는 패딩 위에 입는 것"</p>
+                                <p class="text-slate-500 text-sm">노출이 과한 사진을 복원할 때 RAW의 진가가 드러납니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            web_master: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-indigo">📑 가이드 메뉴 (Reference)</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">Cheat Sheet</span>
+                    </h2>
+
+                    <div class="space-y-8">
+                        <div class="glass-card p-6 rounded-xl border border-indigo-500/20">
+                            <h3 class="text-xl font-bold text-white mb-4">⚡ 노출 3요소 (Exposure Triangle)</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-indigo-400 block mb-2">1. 조리개 (Aperture)</strong>
+                                    <ul class="text-slate-400 space-y-1 list-disc pl-4">
+                                        <li>F값이 작을수록 (F1.8) 구멍이 커짐 → 밝아짐 + 배경 흐림</li>
+                                        <li>F값이 클수록 (F16) 구멍이 작아짐 → 어두워짐 + 전체 선명</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-indigo-400 block mb-2">2. 셔터스피드 (Shutter Speed)</strong>
+                                    <ul class="text-slate-400 space-y-1 list-disc pl-4">
+                                        <li>빠를수록 (1/1000) → 순간 포착 + 어두워짐</li>
+                                        <li>느릴수록 (1/30) → 잔상(흐름) + 밝아짐 + 흔들림 주의</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-slate-800 p-4 rounded-lg">
+                                    <strong class="text-indigo-400 block mb-2">3. 감도 (ISO)</strong>
+                                    <ul class="text-slate-400 space-y-1 list-disc pl-4">
+                                        <li>높을수록 (ISO 3200) → 빛 민감도↑ + 밝아짐 + 노이즈 발생</li>
+                                        <li>낮을수록 (ISO 100) → 화질 깨끗 + 어두워짐</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-xl border border-indigo-500/20">
+                            <h3 class="text-xl font-bold text-white mb-4">🔍 렌즈 선택 가이드</h3>
+                            <ul class="space-y-3 text-slate-300 text-sm">
+                                <li class="flex gap-3">
+                                    <span class="bg-indigo-500/20 text-indigo-300 px-2 rounded font-mono">광각 (16-35mm)</span>
+                                    <span>풍경, 건축물, 좁은 실내를 넓게 찍을 때. 왜곡 발생 주의.</span>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="bg-indigo-500/20 text-indigo-300 px-2 rounded font-mono">표준 (35-50mm)</span>
+                                    <span>사람 눈과 가장 비슷한 화각. 스냅, 인물, 일상 기록용.</span>
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="bg-indigo-500/20 text-indigo-300 px-2 rounded font-mono">망원 (85-200mm)</span>
+                                    <span>멀리 있는 피사체, 인물 아웃포커싱(배경 압축 효과).</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-xl border border-indigo-500/20">
+                            <h3 class="text-xl font-bold text-white mb-4">💡 조명 & 빛의 방향</h3>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <strong class="text-slate-200 block mb-1">순광 (Front Light)</strong>
+                                    <p class="text-slate-400">해를 등지고 찍음. 색이 선명하고 그림자가 적음. 밋밋할 수 있음.</p>
+                                </div>
+                                <div>
+                                    <strong class="text-slate-200 block mb-1">역광 (Back Light)</strong>
+                                    <p class="text-slate-400">해를 마주보고 찍음. 실루엣 촬영이나 감성적인 할레이션 효과.</p>
+                                </div>
+                                <div>
+                                    <strong class="text-slate-200 block mb-1">측광 (Side Light)</strong>
+                                    <p class="text-slate-400">옆에서 들어오는 빛. 그림자가 길어져 입체감과 질감이 살아남.</p>
+                                </div>
+                                <div>
+                                    <strong class="text-slate-200 block mb-1">확산광 (Diffused)</strong>
+                                    <p class="text-slate-400">구름이나 커튼을 통과한 부드러운 빛. 인물 사진에 적합.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            practice: `
+                <div class="max-w-6xl mx-auto p-4 md:p-8 flex flex-col fade-in lg:h-full">
+                    <h2 class="text-3xl font-bold mb-6 border-b border-slate-700 pb-4 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-gradient-pink">🎛️ 실시간 보정 연습</span>
+                            <span class="text-xs font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">Simulator</span>
+                        </div>
+                        <button onclick="resetSliders()" class="text-sm bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition">초기화</button>
+                    </h2>
+
+                    <div class="flex flex-col lg:flex-row gap-8 lg:flex-1 lg:overflow-hidden">
+                        <!-- Image Preview Area -->
+                        <div class="lg:w-2/3 shrink-0 lg:h-auto bg-slate-800 rounded-xl overflow-hidden shadow-2xl relative flex flex-col border border-slate-700">
+                            <div class="h-64 lg:h-auto lg:flex-1 relative flex items-center justify-center overflow-hidden">
+                                <img id="practice-image" src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=2070&auto=format&fit=crop" 
+                                    class="max-w-full max-h-full object-contain transition-all duration-100" alt="Sample Landscape">
+                                <div class="absolute bottom-4 right-4 bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur">Sample Image</div>
+                            </div>
+                            
+                            <!-- Effect Guide Panel (Redesigned) -->
+                            <div class="bg-slate-900/95 border-t border-slate-700 text-slate-300 overflow-y-auto max-h-56 custom-scroll">
+                                <div class="p-5">
+                                    <h4 class="font-bold text-white mb-4 flex items-center gap-2 sticky top-0 bg-slate-900/95 py-2 -mt-2 border-b border-slate-800 z-10">
+                                        <span class="text-blue-400 text-xl">ℹ️</span> 슬라이더 효과 가이드
+                                    </h4>
+                                    
+                                    <div class="space-y-6 text-sm">
+                                        <!-- Tone Group -->
+                                        <div>
+                                            <h5 class="text-blue-400 font-bold mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> 기본 톤 (Tone)
+                                            </h5>
+                                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-2 border-l-2 border-slate-800">
+                                                <li><strong class="text-slate-100">☀️ 노출:</strong> 사진의 전체적인 밝기를 결정합니다. 올리면 밝아집니다.</li>
+                                                <li><strong class="text-slate-100">🌓 대비:</strong> 밝은 곳과 어두운 곳의 차이입니다. 올리면 쨍하고 강렬해집니다.</li>
+                                                <li><strong class="text-slate-100">⚪ 하이라이트:</strong> 가장 밝은 영역(하늘 등)만 조절합니다. 낮추면 날아간 디테일이 살아납니다.</li>
+                                                <li><strong class="text-slate-100">⚫ 섀도우:</strong> 어두운 영역(그림자)만 조절합니다. 올리면 암부 디테일이 보입니다.</li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Presence Group -->
+                                        <div>
+                                            <h5 class="text-teal-400 font-bold mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span> 외관 (Presence)
+                                            </h5>
+                                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-2 border-l-2 border-slate-800">
+                                                <li><strong class="text-slate-100">🗿 텍스처:</strong> 미세한 질감을 강조합니다. 피부 보정 시엔 낮추고, 풍경엔 올립니다.</li>
+                                                <li><strong class="text-slate-100">💎 명료도:</strong> 중간 톤의 대비를 높여 입체감을 줍니다. 과하면 사진이 탁해집니다.</li>
+                                                <li><strong class="text-slate-100">🌫️ 디헤이즈:</strong> 안개를 걷어내는 기능입니다. 올리면 선명하고 진해지며 하늘이 파래집니다.</li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- Color Group -->
+                                        <div>
+                                            <h5 class="text-purple-400 font-bold mb-2 text-xs uppercase tracking-wider flex items-center gap-2">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span> 색상 (Color)
+                                            </h5>
+                                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 pl-2 border-l-2 border-slate-800">
+                                                <li><strong class="text-slate-100">✨ 생동감:</strong> 피부톤은 보호하면서 칙칙한 색만 살립니다. 자연스러운 채도 조절입니다.</li>
+                                                <li><strong class="text-slate-100">🎨 채도:</strong> 모든 색상의 농도를 균일하게 높입니다. 과하면 색이 뭉칠 수 있습니다.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sliders Control Panel -->
+                        <div class="lg:w-1/3 flex-1 lg:flex-none overflow-y-auto pr-2 custom-scroll pb-10">
+                            <div class="space-y-6">
+                                
+                                <!-- Tone Group -->
+                                <div class="glass-card p-5 rounded-xl border-l-4 border-blue-500">
+                                    <h3 class="text-sm font-bold text-blue-400 mb-4 uppercase tracking-wider">기본 톤 (Tone)</h3>
+                                    
+                                    <div class="space-y-4">
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">노출 (Exposure)</span>
+                                                <input type="number" id="num-exposure" class="w-12 bg-transparent text-right text-blue-300 focus:outline-none focus:border-b focus:border-blue-500" value="0" min="-50" max="50" onchange="updateSliderFromNumber('exposure')">
+                                            </div>
+                                            <input type="range" id="p-exposure" min="-50" max="50" value="0" oninput="updateNumberFromSlider('exposure')">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">대비 (Contrast)</span>
+                                                <input type="number" id="num-contrast" class="w-12 bg-transparent text-right text-blue-300 focus:outline-none focus:border-b focus:border-blue-500" value="0" min="-50" max="50" onchange="updateSliderFromNumber('contrast')">
+                                            </div>
+                                            <input type="range" id="p-contrast" min="-50" max="50" value="0" oninput="updateNumberFromSlider('contrast')">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">하이라이트 (Highlights)</span>
+                                                <input type="number" id="num-highlights" class="w-12 bg-transparent text-right text-blue-300 focus:outline-none focus:border-b focus:border-blue-500" value="0" min="-100" max="100" onchange="updateSliderFromNumber('highlights')">
+                                            </div>
+                                            <input type="range" id="p-highlights" min="-100" max="100" value="0" oninput="updateNumberFromSlider('highlights')">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">섀도우 (Shadows)</span>
+                                                <input type="number" id="num-shadows" class="w-12 bg-transparent text-right text-blue-300 focus:outline-none focus:border-b focus:border-blue-500" value="0" min="-100" max="100" onchange="updateSliderFromNumber('shadows')">
+                                            </div>
+                                            <input type="range" id="p-shadows" min="-100" max="100" value="0" oninput="updateNumberFromSlider('shadows')">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Presence Group -->
+                                <div class="glass-card p-5 rounded-xl border-l-4 border-teal-500">
+                                    <h3 class="text-sm font-bold text-teal-400 mb-4 uppercase tracking-wider">외관 (Presence)</h3>
+                                    
+                                    <div class="space-y-4">
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">텍스처 (Texture)</span>
+                                                <input type="number" id="num-texture" class="w-12 bg-transparent text-right text-teal-300 focus:outline-none focus:border-b focus:border-teal-500" value="0" min="-100" max="100" onchange="updateSliderFromNumber('texture')">
+                                            </div>
+                                            <input type="range" id="p-texture" min="-100" max="100" value="0" oninput="updateNumberFromSlider('texture')">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">명료도 (Clarity)</span>
+                                                <input type="number" id="num-clarity" class="w-12 bg-transparent text-right text-teal-300 focus:outline-none focus:border-b focus:border-teal-500" value="0" min="-100" max="100" onchange="updateSliderFromNumber('clarity')">
+                                            </div>
+                                            <input type="range" id="p-clarity" min="-100" max="100" value="0" oninput="updateNumberFromSlider('clarity')">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">디헤이즈 (Dehaze)</span>
+                                                <input type="number" id="num-dehaze" class="w-12 bg-transparent text-right text-teal-300 focus:outline-none focus:border-b focus:border-teal-500" value="0" min="-100" max="100" onchange="updateSliderFromNumber('dehaze')">
+                                            </div>
+                                            <input type="range" id="p-dehaze" min="-100" max="100" value="0" oninput="updateNumberFromSlider('dehaze')">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Color Group -->
+                                <div class="glass-card p-5 rounded-xl border-l-4 border-purple-500">
+                                    <h3 class="text-sm font-bold text-purple-400 mb-4 uppercase tracking-wider">색상 (Color)</h3>
+                                    
+                                    <div class="space-y-4">
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">생동감 (Vibrance)</span>
+                                                <input type="number" id="num-vibrance" class="w-12 bg-transparent text-right text-purple-300 focus:outline-none focus:border-b focus:border-purple-500" value="0" min="-100" max="100" onchange="updateSliderFromNumber('vibrance')">
+                                            </div>
+                                            <input type="range" id="p-vibrance" min="-100" max="100" value="0" oninput="updateNumberFromSlider('vibrance')">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-xs mb-1">
+                                                <span class="text-slate-300">채도 (Saturation)</span>
+                                                <input type="number" id="num-saturation" class="w-12 bg-transparent text-right text-purple-300 focus:outline-none focus:border-b focus:border-purple-500" value="0" min="-100" max="100" onchange="updateSliderFromNumber('saturation')">
+                                            </div>
+                                            <input type="range" id="p-saturation" min="-100" max="100" value="0" oninput="updateNumberFromSlider('saturation')">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 bg-slate-800/50 rounded-lg text-xs text-slate-500 text-center">
+                                    Note: 웹 시뮬레이션은 CSS 필터를 사용하여 라이트룸의 효과를 근사치로 표현합니다.
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `,
+            instagram_tips: `
+                <div class="max-w-4xl mx-auto p-5 md:p-10 pb-20 md:pb-10 fade-in">
+                    <h2 class="text-3xl font-bold mb-8 border-b border-slate-700 pb-4 flex items-center gap-3">
+                        <span class="text-gradient-pink">📱 인스타그램 최적화 팁</span>
+                        <span class="text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded">Instagram Upload</span>
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass-card p-6 rounded-xl border border-pink-500/20">
+                            <strong class="text-white block mb-2 text-lg">📏 4:5 비율 추천</strong>
+                            <p class="text-sm text-slate-400 mb-3">
+                                인스타그램 피드에서 세로로 화면에 가장 꽉 차게 보여주는 비율은 <strong>4:5</strong>입니다. 스마트폰 화면을 최대한 활용하여 시선을 끌 수 있습니다.
+                            </p>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-xl border border-orange-500/20">
+                            <strong class="text-white block mb-2 text-lg">☀️ 노출 살짝 높이기</strong>
+                            <p class="text-sm text-slate-400 mb-3">
+                                스마트폰 화면에서는 사진이 약간 더 밝아야 눈에 잘 띕니다. 보정 시 평소보다 <strong>노출을 +0.75 정도</strong> 높여주는 것을 추천합니다.
+                            </p>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-xl border border-blue-500/20">
+                            <strong class="text-white block mb-2 text-lg">💾 용량 1.6MB 이하</strong>
+                            <p class="text-sm text-slate-400 mb-3">
+                                인스타그램은 용량이 큰 사진을 자체적으로 강제 압축합니다. 고화질을 유지하려면 라이트룸에서 내보낼 때 파일 용량을 <strong>1.6MB 이하</strong>로 맞춰주세요.
+                            </p>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-xl border border-teal-500/20">
+                            <strong class="text-white block mb-2 text-lg">📐 해상도 가로 1080px 고정</strong>
+                            <p class="text-sm text-slate-400 mb-3">
+                                내보내기 시 가로 픽셀을 <strong>1080px</strong>로 고정하세요. 더 큰 해상도로 올리면 인스타그램 자체 알고리즘이 오히려 화질을 뭉개버릴 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        // --- Helper Function for Toast ---
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => { if (toast.parentElement) toast.parentElement.removeChild(toast); }, 300);
+            }, 2500);
+        }
+
+        // --- Practice Simulator Logic (Revised) ---
+        function updateNumberFromSlider(id) {
+            const slider = document.getElementById(`p-${id}`);
+            const numberInput = document.getElementById(`num-${id}`);
+            if (slider && numberInput) {
+                numberInput.value = slider.value;
+                updateImage();
+            }
+        }
+
+        function updateSliderFromNumber(id) {
+            const slider = document.getElementById(`p-${id}`);
+            const numberInput = document.getElementById(`num-${id}`);
+            if (slider && numberInput) {
+                let val = parseInt(numberInput.value);
+                const min = parseInt(numberInput.min);
+                const max = parseInt(numberInput.max);
+                if (isNaN(val)) val = 0;
+                if (val < min) { val = min; showToast(`입력 가능한 최소값은 ${min}입니다.`); numberInput.value = min; } 
+                else if (val > max) { val = max; showToast(`입력 가능한 최대값은 ${max}입니다.`); numberInput.value = max; }
+                slider.value = val;
+                updateImage();
+            }
+        }
+
+        function updateImage() {
+            const img = document.getElementById('practice-image');
+            if (!img) return;
+            const exposure = parseInt(document.getElementById('p-exposure').value);
+            const contrast = parseInt(document.getElementById('p-contrast').value);
+            const highlights = parseInt(document.getElementById('p-highlights').value);
+            const shadows = parseInt(document.getElementById('p-shadows').value);
+            const texture = parseInt(document.getElementById('p-texture').value);
+            const clarity = parseInt(document.getElementById('p-clarity').value);
+            const dehaze = parseInt(document.getElementById('p-dehaze').value);
+            const vibrance = parseInt(document.getElementById('p-vibrance').value);
+            const saturation = parseInt(document.getElementById('p-saturation').value);
+
+            let brightnessVal = 100 + (exposure * 1.5) + (shadows * 0.4) + (highlights * 0.1) - (dehaze * 0.2);
+            let contrastVal = 100 + contrast + (clarity * 0.6) + (dehaze * 0.5) + (texture * 0.2) + (highlights * 0.1) - (shadows * 0.1);
+            let saturateVal = 100 + saturation + (vibrance * 0.8) + (dehaze * 0.4);
+
+            img.style.filter = `brightness(${brightnessVal}%) contrast(${contrastVal}%) saturate(${saturateVal}%)`;
+        }
+
+        function resetSliders() {
+            const ids = ['exposure', 'contrast', 'highlights', 'shadows', 'texture', 'clarity', 'dehaze', 'vibrance', 'saturation'];
+            ids.forEach(id => {
+                const slider = document.getElementById(`p-${id}`);
+                const number = document.getElementById(`num-${id}`);
+                if(slider && number) { slider.value = 0; number.value = 0; }
+            });
+            updateImage();
+        }
+
+        function createSlider(label, rangeText, percent, colorBase) {
+            const colorMap = { 'blue': 'from-blue-500 to-cyan-400', 'green': 'from-emerald-500 to-teal-400', 'purple': 'from-purple-500 to-violet-400', 'pink': 'from-pink-500 to-rose-400', 'red': 'from-red-500 to-orange-400' };
+            const shadowMap = { 'blue': 'shadow-blue-500/50', 'green': 'shadow-emerald-500/50', 'purple': 'shadow-purple-500/50', 'pink': 'shadow-pink-500/50', 'red': 'shadow-red-500/50' };
+            const gradientClass = colorMap[colorBase] || 'from-blue-500 to-cyan-400';
+            const shadowClass = shadowMap[colorBase] || 'shadow-blue-500/50';
+            return `<div class="mb-6"><div class="flex justify-between items-end mb-2"><span class="text-sm font-medium text-slate-300">${label}</span><span class="text-xs text-slate-400 font-mono bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">${rangeText}</span></div><div class="slider-track bg-slate-700/50"><div class="slider-fill bg-gradient-to-r ${gradientClass}" style="width: ${percent}%;"></div><div class="slider-thumb ${shadowClass}" style="left: ${percent}%;"></div></div></div>`;
+        }
+
+        let lastActivePageId = 'home';
+        function router(pageId) {
+            lastActivePageId = pageId; 
+            const mainContent = document.getElementById('main-content');
+            mainContent.style.opacity = '0';
+            mainContent.style.transform = 'translateY(10px)';
+            mainContent.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out';
+            setTimeout(() => {
+                mainContent.innerHTML = contentData[pageId] || contentData['home'];
+                mainContent.scrollTop = 0;
+                mainContent.style.opacity = '1';
+                mainContent.style.transform = 'translateY(0)';
+                updateActiveNav(pageId);
+                closeSidebar();
+            }, 200);
+        }
+
+        function updateActiveNav(activeId) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('bg-slate-800/50', 'text-blue-400', 'font-medium', 'border', 'border-slate-700/50');
+                item.classList.add('text-slate-400', 'border-transparent');
+                if (item.getAttribute('onclick').includes(`'${activeId}'`)) {
+                    item.classList.add('bg-slate-800/50', 'text-blue-400', 'font-medium', 'border', 'border-slate-700/50');
+                    item.classList.remove('text-slate-400', 'border-transparent');
+                }
+            });
+        }
+
+        const pageTitles = { home: "홈 / 개요", photography: "실전 촬영 가이드", golden_triangle: "골든 트라이앵글 심화", frame_composition: "액자 구도 심화", workflow: "핵심 보정 흐름", landscape: "풍경 사진 레시피", portrait: "인물 사진 레시피", concepts: "JPG vs RAW & 용어", web_master: "가이드 메뉴", film_recipe: "필름 감성 레시피", bw_master: "흑백 사진 마스터", cinematic: "시네마틱 컬러", practice: "실시간 보정 연습", instagram_tips: "인스타 업로드 팁" };
+
+        function stripHtml(html) { let tmp = document.createElement("DIV"); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ""; }
+        const searchIndex = Object.keys(contentData).map(key => ({ id: key, title: pageTitles[key] || "기타", content: stripHtml(contentData[key]).toLowerCase() }));
+
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            const mainContent = document.getElementById('main-content');
+            if (!query) { router(lastActivePageId); return; }
+            const results = searchIndex.filter(item => item.title.toLowerCase().includes(query) || item.content.includes(query));
+            let resultsHtml = `<div class="max-w-4xl mx-auto p-6 md:p-10 fade-in"><h2 class="text-2xl font-bold mb-6 text-white flex items-center gap-2"><svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>검색 결과: "${e.target.value}"</h2>`;
+            if (results.length === 0) { resultsHtml += `<div class="text-center py-12 text-slate-500"><p class="text-lg">검색 결과가 없습니다.</p><p class="text-sm mt-2">다른 검색어로 시도해보세요.</p></div></div>`; } 
+            else { resultsHtml += `<div class="grid grid-cols-1 gap-4">`; results.forEach(item => { const index = item.content.indexOf(query); let snippet = ""; if (index > -1) { const start = Math.max(0, index - 30); const end = Math.min(item.content.length, index + 100); snippet = "..." + item.content.substring(start, end) + "..."; } else { snippet = item.content.substring(0, 100) + "..."; } resultsHtml += `<div class="glass-card p-5 rounded-xl hover:border-blue-500/50 transition cursor-pointer group" onclick="router('${item.id}')"><h3 class="text-lg font-bold text-blue-400 mb-1 group-hover:text-blue-300">${item.title}</h3><p class="text-slate-400 text-sm line-clamp-2">${snippet}</p></div>`; }); resultsHtml += `</div></div>`; }
+            mainContent.innerHTML = resultsHtml; mainContent.scrollTop = 0;
+        });
+
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleSidebar() { 
+            const isClosed = sidebar.classList.contains('-translate-x-full'); 
+            if (isClosed) { 
+                sidebar.classList.remove('-translate-x-full'); 
+                overlay.classList.remove('hidden'); 
+                document.body.style.overflow = 'hidden';
+            } else { 
+                closeSidebar(); 
+            } 
+        }
+        function closeSidebar() { 
+            sidebar.classList.add('-translate-x-full'); 
+            setTimeout(() => { sidebar.classList.add('md:translate-x-0'); }, 50); 
+            overlay.classList.add('hidden'); 
+            document.body.style.overflow = '';
+        }
+        menuBtn.addEventListener('click', toggleSidebar); overlay.addEventListener('click', closeSidebar);
+        document.addEventListener('DOMContentLoaded', () => { router('home'); });
+    </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js');
+  }
+</script>
+</body>
+</html>
